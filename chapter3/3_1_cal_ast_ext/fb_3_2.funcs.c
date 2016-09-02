@@ -90,7 +90,7 @@ newcmp(int cmptype, struct ast *l, struct ast *r)
         exit(0);
     }
 
-    a->nodetype = 'O' + cmptype;
+    a->nodetype = '0' + cmptype;
     a->l = l;
     a->r = r;
     return a;
@@ -266,12 +266,6 @@ eval(struct ast *a)
         return 0.0;
     }
 
-    /*
-    printf("nodetype:%c\n", a->nodetype);
-    if (a->nodetype == 'k') {
-        printf("nodetype:%f\n", ((struct numval *)a)->number);
-    }
-    */
     switch(a->nodetype) {
         case 'K': /*常量*/
             v = ((struct numval *)a)->number;

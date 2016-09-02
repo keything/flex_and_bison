@@ -7,4 +7,14 @@
     > avg(3, sqrt(25))
     = 4
 
+问题：
+    >let max(x,y) = if x > y then x; else y;;
+    Defined max
+    >max(12,43)
+    = 43
+
+调试：
+
+    如果出现bad node P，原因是：
+    newcmp函数中 a->nodetype = '0' + cmptype 是数字0而不是字母O
  

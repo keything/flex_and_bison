@@ -443,6 +443,13 @@ calluser(struct ufncall *f)
         nargs++;
     }
     /**为保存参数值做准备*/
+    oldval = (double *)malloc(nargs * sizeof(double));
+    newval = (double *)malloc(nargs * sizeof(double));
+    if (!oldval || !newval) {
+        yyerror("out of space in %s", fn->name);
+        return 0.0;
+    }
+    /*计算参数值**/
     for (i = 0; i < nargs; i++) {
         if (!args) {
             yyerror("too few args in call to %s", fn->name);

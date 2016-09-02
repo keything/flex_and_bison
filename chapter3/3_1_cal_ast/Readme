@@ -1,0 +1,21 @@
+通过当前代码，当输入
+5 + 25 * 6 + 5*6
+输出
+5 + 25 * 6 + 5*6
+nodetype:+
+nodetype:+
+nodetype:k
+nodetype:5.000000
+nodetype:*
+nodetype:k
+nodetype:25.000000
+nodetype:k
+nodetype:6.000000
+nodetype:*
+nodetype:k
+nodetype:5.000000
+nodetype:k
+nodetype:6.000000
+= 185
+
+可以看到确实是按照抽象语法树的顺序来执行的。

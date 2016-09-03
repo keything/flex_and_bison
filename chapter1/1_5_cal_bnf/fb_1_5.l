@@ -1,3 +1,4 @@
+%option noyywrap
 %{
 #include "fb_1_5.tab.h"
 %}

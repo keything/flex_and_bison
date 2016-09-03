@@ -1,0 +1,8 @@
+目的：字符数，单词数，行数统计
+编译：make
+执行：$./fb1
+    The boy stood on the burning deck
+    shelling peanutes by the peck
+    ^D
+    2 12 63
+其中^D是ctrl + D

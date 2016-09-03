@@ -1,4 +1,9 @@
 
+/**
+例1-1：字数统计
+
+*/
+%option noyywrap
 %{
 int chars = 0;
 int words = 0;

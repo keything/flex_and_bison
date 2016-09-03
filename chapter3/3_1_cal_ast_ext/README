@@ -16,5 +16,59 @@
 调试：
 
     如果出现bad node P，原因是：
-    newcmp函数中 a->nodetype = '0' + cmptype 是数字0而不是字母O
+    newzcmp函数中 a->nodetype = '0' + cmptype 是数字0而不是字母O
+
+整个过程的描述：
+
  
+    > let max(x,y) = if x > y then x; else y;;
+
+    整个流程:
+    移进 let -> token是LET
+    移进 max -> 先去符号表查找，没有的话新建。token是NAME 此时 是 ``LET NAME``
+    移进 (
+    移进 x，
+    移进 y，即 ``LET NAME(NAME,NAME``发生归约，首先y符合``symlist:NAME`` 归约为 LET NAME(NAME,symlist)，接着符合``symlist| NAME ',' symlist`` 归约为 ``LET NAME(symlist``
+    移进 ),  即: LET NAME(symlist)
+    移进 =,  即: LET NAME(symlist) = 
+    移进 if, token是IF 即: LET NAME(symlist) = IF
+    移进 x，符合 ``exp | NAME`` 发生动作newref 归约为 LET NAME(symlist) = IF exp
+    移进 >，token是CMP,即 LET NAME(symlist) = IF exp CMP
+    移进 y, 符合 ``exp | NAME ``发生动作newref ，即 LET NAME(symlist) = IF exp CMP exp，符合``exp|exp CMP exp``归约为 LET NAME(symlist) = IF exp
+    移进 then, 即 LET NAME(symlist) = IF exp THEN
+    移进 x, 符合``exp|NAME``归约为exp，又符合``stmt|exp``归约为stmt 即 LET NAME(symlist) = IF exp THEN stmt
+    移进 ;, 符合``list|stmp ';' list`` 归约为LET NAME(symlist) = IF exp THEN list
+    移进 else，token是ELSE，即 LET NAME(symlist) = IF exp THEN list ELSE
+    移进 y, 符合``exp|NAME``归约为exp，又符合``stmt|exp``归约为stmt 即 LET NAME(symlist) = IF exp THEN list ELSE stmt
+    移进 ;, 符合``list|stmt ';' list`` 归约为LET NAME(symlist) = IF exp THEN list ELSE list，符合 ``stmt|IF exp THEN list ELSE list``,归约为 LET NAME(symlist) = stmt
+    移进 ;, 符合 ``list|stmt ';' list`` 归约为 LET NAME(symlist) = list，符合``calclist|calclist LET NAME(symlist) = list ，执行动作dodef
+
+    此时在符号表中，max的struct symbol结构体中已经有了其虚拟参数和函数体。其中函数体的cond是一个ast。
+
+ > max(15,3)
+ 首先也是建立语法树 节点nodetype是C，字段l是实参，字段s是符号表中的max
+ 之后遍历语法树，执行。打印出的日志是:
+
+    max(15,3)
+    symbol find:max
+    number:15.000000
+    number:3.000000
+    exp
+    exp,explist
+    newcall NAME=max
+    stmt:exp:
+    nodetype:C
+    356->calluser
+    call to function:max
+    function args:2
+    nodetype:K
+    nodetype:K
+    nodetype:I
+    nodetype:1
+    nodetype:N
+    nodetype:N
+    nodetype:N
+    =   15
+
+    
+

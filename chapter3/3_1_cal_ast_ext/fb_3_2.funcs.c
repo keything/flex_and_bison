@@ -30,6 +30,7 @@ lookup(char *sym)
     struct symbol *sp = &symtab[symhash(sym) % NHASH];
     int scount = NHASH; /**需要查看的个数*/
 
+    printf("symbol find:%s\n", sym);
     while (--scount >= 0) {
         if (sp->name && ! strcmp(sp->name, sym)) {
             return sp;
@@ -165,10 +166,12 @@ newflow(int nodetype, struct ast *cond, struct ast *tl, struct ast *el)
         exit(0);
     }
 
+    printf("begin newflow\n");
     a->nodetype = nodetype;
     a->cond = cond;
     a->tl = tl;
     a->el = el;
+    printf("end newflow\n");
     return (struct ast*)a;
 }
 
@@ -266,6 +269,7 @@ eval(struct ast *a)
         return 0.0;
     }
 
+    printf("nodetype:%c\n", a->nodetype);
     switch(a->nodetype) {
         case 'K': /*常量*/
             v = ((struct numval *)a)->number;
@@ -351,6 +355,7 @@ eval(struct ast *a)
             v = callbuiltin((struct fncall*)a);
             break;
         case 'C':
+            printf("356->calluser\n");
             v = calluser((struct ufncall*)a);
             break;
 
@@ -393,6 +398,7 @@ callbuiltin(struct fncall *f)
 void
 dodef(struct symbol *name, struct symlist *syms, struct ast *func)
 {
+    printf("begin dodef\n");
     if (name->syms) {
         symlistfree(name->syms);
     }
@@ -401,6 +407,7 @@ dodef(struct symbol *name, struct symlist *syms, struct ast *func)
     }
     name->syms = syms;
     name->func = func;
+    printf("end dodef\n");
 }
 /**
  * 比如你定义一个函数来计算两个参数中的最大值
@@ -430,12 +437,14 @@ calluser(struct ufncall *f)
         yyerror("call to undefined function:", fn->name);
         return 0;
     }
+    printf("call to function:%s\n", fn->name);
 
     /**计算参数个数*/
     sl = fn->syms;
     for (nargs = 0; sl; sl = sl->next) {
         nargs++;
     }
+    printf("function args:%d\n", nargs);
     /**为保存参数值做准备*/
     oldval = (double *)malloc(nargs * sizeof(double));
     newval = (double *)malloc(nargs * sizeof(double));

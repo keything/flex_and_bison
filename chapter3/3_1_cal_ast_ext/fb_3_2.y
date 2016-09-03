@@ -55,9 +55,9 @@ if和while语句具有一连串语句，这里面的语句都用分号结尾。�
 */
 /*stmt和list是计算器语句的语法*/
 stmt: IF exp THEN list { $$ = newflow('I', $2, $4, NULL); }
-    | IF exp THEN list ELSE list { $$ = newflow('I', $2, $4, $6); }
+    | IF exp THEN list ELSE list { printf("if exp then list else list\n");$$ = newflow('I', $2, $4, $6); }
     | WHILE exp DO list { $$ = newflow('W', $2, $4, NULL); }
-    | exp
+    | exp { printf("stmt:exp:\n"); $$ = $1; }
     ;
 /**
 list的定义是右递归的，也就是说是stmt;list 而不是list stmt ;这对于语言识别没有任何差异，但是我们因此会更容易构造一个从头到尾而不是相反方向的语句链表。
@@ -68,14 +68,18 @@ list的定义是右递归的，也就是说是stmt;list 而不是list stmt ;这�
 
 */
 list: /*空*/ { $$ = NULL;}
-    | stmt ';' list { if ($3 == NULL)
+    | stmt ';' list { if ($3 == NULL) {
+                        printf("stmp;list:$3==NULL\n");
                         $$ = $1;
-                        else 
+                        }
+                        else {
+                        printf("stmp;list:$3!=NULL\n");
                         $$ = newast('L', $1, $3);
+                        }
                     }
     ;
 /*计算器表达式的语法*/
-exp: exp CMP exp { $$ = newcmp($2, $1, $3);}
+exp: exp CMP exp { printf("exp CMP exp\n");$$ = newcmp($2, $1, $3);}
    | exp '+' exp { $$ = newast('+', $1, $3);}
    | exp '-' exp { $$ = newast('-', $1, $3);}
    | exp '*' exp { $$ = newast('*', $1, $3);}
@@ -83,19 +87,19 @@ exp: exp CMP exp { $$ = newcmp($2, $1, $3);}
     | '|' exp    { $$ = newast('|', $2, NULL);}
     |'(' exp ')' { $$ = $2;}
     | '-' exp %prec UMINUS { $$ = newast('M', $2, NULL);}
-    | NUMBER { $$ = newnum($1); }
-    | NAME   { $$ = newref($1); }
-    | NAME '=' exp  { $$ = newasgn($1, $3); }
+    | NUMBER { printf("number:%f\n",$1);$$ = newnum($1); }
+    | NAME   { printf("exp|NAME:%s\n", $1->name);$$ = newref($1); }
+    | NAME '=' exp  { printf("NAME = exp:%s\n", $1->name);$$ = newasgn($1, $3); }
     | FUNC '(' explist ')' { $$ = newfunc($1, $3); }
-    | NAME '(' explist ')' { $$ = newcall($1, $3); }
+    | NAME '(' explist ')' { printf("newcall NAME=%s\n",$1->name);$$ = newcall($1, $3); }
 ;
-explist: exp
-       | exp ',' explist { $$ = newast('L', $1, $3); }
+explist: exp { printf("exp\n"); $$ = $1; }
+       | exp ',' explist { printf("exp,explist\n"); $$ = newast('L', $1, $3); }
    ;
 /**规则explist定义了一个表达式列表，它创建这些表达式的抽象语法树来作为函数调用所需要的实际参数
 规则symlist定义了一个符号列表，它创建了这些符号的链表用于函数定义时所需要的虚拟参数。他们都是右递归的，以方便基于期望的顺序创建链表*/
-symlist: NAME { $$ = newsymlist($1, NULL); }
-       | NAME ',' symlist { $$ = newsymlist($1, $3);}
+symlist: NAME { printf("symlist|name:%s\n", $1->name);$$ = newsymlist($1, NULL); }
+       | NAME ',' symlist { printf("symlist|name,symlist:%s\n", $1->name);$$ = newsymlist($1, $3);}
    ;
 
 /**
